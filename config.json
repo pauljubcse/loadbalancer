@@ -1,0 +1,8 @@
+{
+	"addresses": [":8090", ":8091"],
+	"backends": ["http://localhost:8081", "http://localhost:8082", "http://localhost:8083"],
+	"backend_timeout": 5,
+	"read_timeout": 5,
+	"write_timeout": 10,
+	"load_balancing_algorithm": "ip_hash" 
+}
