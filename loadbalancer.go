@@ -2,7 +2,6 @@ package loadbalancer
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -76,26 +75,62 @@ func root(w http.ResponseWriter, req *http.Request) {
 	// w.WriteHeader(http.StatusAccepted)
 	// fmt.Fprint(w, backend)
 }
-func main() {
-	configFile := flag.String("config", "config.json", "Path to configuration file")
-	flag.Parse()
 
-	err := loadConfig(*configFile)
+// func main() {
+// 	configFile := flag.String("config", "config.json", "Path to configuration file")
+// 	flag.Parse()
+
+// 	err := loadConfig(*configFile)
+// 	if err != nil {
+// 		log.Fatalf("Failed to load config: %v", err)
+// 	}
+// 	fmt.Print(config.Backends)
+// 	switch config.LoadBalancingAlgorithm {
+// 	case "round_robin":
+// 		lb = algorithm.NewRoundRobin(config.Backends)
+// 	case "weighted_round_robin":
+// 		lb = algorithm.NewWeightedRoundRobin(config.Backends, config.Weights)
+// 	// case "least_connection":
+// 	// 	lb = algorithm.NewLeastConnection(config.Backends)
+// 	case "ip_hash":
+// 		lb = algorithm.NewIPHash(config.Backends)
+// 	default:
+// 		log.Fatalf("Unknown load balancing algorithm: %v", config.LoadBalancingAlgorithm)
+// 	}
+
+// 	for _, address := range config.Addresses {
+// 		srv := &http.Server{
+// 			Addr:         address,
+// 			Handler:      http.HandlerFunc(root),
+// 			ReadTimeout:  time.Duration(config.ReadTimeout) * time.Second,
+// 			WriteTimeout: time.Duration(config.WriteTimeout) * time.Second,
+// 		}
+
+// 		go func(s *http.Server) {
+// 			log.Printf("Starting server on %s", s.Addr)
+// 			if err := s.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+// 				log.Fatalf("Could not listen on %s: %v", s.Addr, err)
+// 			}
+// 		}(srv)
+// 	}
+
+//		select {}
+//	}
+func StartLoadBalancer(configFile string) error {
+	err := loadConfig(configFile)
 	if err != nil {
-		log.Fatalf("Failed to load config: %v", err)
+		return fmt.Errorf("failed to load config: %w", err)
 	}
-	fmt.Print(config.Backends)
+
 	switch config.LoadBalancingAlgorithm {
 	case "round_robin":
 		lb = algorithm.NewRoundRobin(config.Backends)
 	case "weighted_round_robin":
 		lb = algorithm.NewWeightedRoundRobin(config.Backends, config.Weights)
-	// case "least_connection":
-	// 	lb = algorithm.NewLeastConnection(config.Backends)
 	case "ip_hash":
 		lb = algorithm.NewIPHash(config.Backends)
 	default:
-		log.Fatalf("Unknown load balancing algorithm: %v", config.LoadBalancingAlgorithm)
+		return fmt.Errorf("unknown load balancing algorithm: %v", config.LoadBalancingAlgorithm)
 	}
 
 	for _, address := range config.Addresses {
