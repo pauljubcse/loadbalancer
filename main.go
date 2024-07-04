@@ -1,4 +1,4 @@
-package main
+package load-balancer
 
 import (
 	"encoding/json"
