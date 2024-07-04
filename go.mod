@@ -1,4 +1,4 @@
-module loadbalancer
+module github.com/pauljubcse/loadbalancer
 
 go 1.22.4
 
